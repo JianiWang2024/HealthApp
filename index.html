@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="健康日记">
+<meta name="theme-color" content="#fffaf2">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🍡%3C/text%3E%3C/svg%3E">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<title>软糖健康日记</title>
+<style>
+:root{--bg:#fff4f6;--card:#fff;--tx:#5b4651;--sub:#a38f98;--ac:#ff7fa1;--ac2:#ffe4ec;--bd:#ffd3df;--mint:#c9f0e0;--sun:#fff0bd;--sky:#d6ecff;--red:#f0627a;--grn:#3fb98a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#201820;--card:#2c222b;--tx:#f7e8ee;--sub:#b39ba6;--ac:#ff8fb0;--ac2:#43303b;--bd:#4d3846;--mint:#24463a;--sun:#4a4023;--sky:#263a4d;--red:#ff8095;--grn:#5fd3a6;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#201820;--card:#2c222b;--tx:#f7e8ee;--sub:#b39ba6;--ac:#ff8fb0;--ac2:#43303b;--bd:#4d3846;--mint:#24463a;--sun:#4a4023;--sky:#263a4d;--red:#ff8095;--grn:#5fd3a6;color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;color:var(--tx);font:15px/1.5 "Nunito",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(var(--bd) 1.5px,transparent 1.5px) 0 0/22px 22px,var(--bg);padding-bottom:96px}
+.wrap{max-width:560px;margin:0 auto;padding:12px}
+.date{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.date button{width:38px;height:38px;border-radius:50%;padding:0;font-size:18px}
+.date input{border:0;background:var(--card);border-radius:20px;padding:6px 14px;font-size:16px;font-weight:700;box-shadow:0 3px 0 var(--bd)}
+.card{background:var(--card);border:2px solid var(--bd);border-radius:22px;padding:14px;margin-bottom:14px;box-shadow:0 4px 0 var(--bd)}
+h3{margin:0 0 10px;font-size:16px}
+button,input,select,textarea{font:inherit;color:var(--tx)}
+button{border:2px solid var(--bd);background:var(--card);border-radius:999px;padding:7px 16px;cursor:pointer;box-shadow:0 3px 0 var(--bd);transition:transform .1s}
+button:active{transform:translateY(3px);box-shadow:none}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff;font-weight:700;box-shadow:0 3px 0 #e0678a}
+input,select,textarea{border:2px solid var(--bd);background:var(--bg);border-radius:14px;padding:8px 12px;min-width:0;width:100%}
+textarea{resize:vertical}
+.row{display:flex;gap:8px;margin-bottom:10px;align-items:center}.row>*{flex:1}.row>button{flex:none}
+.seg{display:flex;background:var(--ac2);border-radius:999px;padding:4px;margin-bottom:10px}
+.seg button{flex:1;border:0;background:none;box-shadow:none;padding:5px}
+.seg button.on{background:var(--card);color:var(--ac);font-weight:700;box-shadow:0 2px 0 var(--bd)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.chips button{padding:6px 12px}.chips button.on{background:var(--ac2);border-color:var(--ac);color:var(--ac);font-weight:700}
+.item{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:2px dashed var(--bd)}
+.item:first-of-type{border-top:0}
+.sub{color:var(--sub);font-size:13px}
+.x{border:0;background:none;box-shadow:none;color:var(--sub);padding:2px 8px}
+.banner{background:linear-gradient(135deg,#ffb3c8,#ffd6a5);border-radius:26px;padding:16px;color:#5b3a46;display:flex;gap:12px;align-items:center;margin-bottom:14px;box-shadow:0 4px 0 #f0a3b8}
+.mas{font-size:54px;animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-4deg)}}
+@media (prefers-reduced-motion:reduce){.mas{animation:none}}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.t{border-radius:20px;padding:12px;color:#4a3a42}.t b{font-size:22px;display:block}
+.t.a{background:var(--sun)}.t.b{background:var(--mint)}.t.c{background:var(--sky)}.t.d{background:var(--ac2)}
+:root:not([data-theme="light"]) .t{color:var(--tx)}
+.bar{height:12px;background:var(--ac2);border-radius:6px;overflow:hidden}.bar i{display:block;height:100%;background:var(--ac);border-radius:6px}
+.tabs{position:fixed;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom,0px));max-width:536px;margin:0 auto;display:flex;background:var(--card);border:2px solid var(--bd);border-radius:999px;padding:4px;box-shadow:0 4px 0 var(--bd)}
+.tabs button{flex:1;border:0;box-shadow:none;background:none;padding:6px 0;color:var(--sub);font-size:11px;border-radius:999px}
+.tabs button b{display:block;font-size:20px;font-weight:400}
+.tabs button.on{background:var(--ac2);color:var(--ac);font-weight:700}
+.cups{display:flex;gap:6px;flex-wrap:wrap}.cups button{width:38px;height:38px;padding:0;font-size:18px;filter:grayscale(1);opacity:.45}.cups button.on{filter:none;opacity:1;background:var(--sky)}
+svg{width:100%;height:auto;display:block}
+.ln{fill:none;stroke:var(--ac);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}.dt{fill:var(--card);stroke:var(--ac);stroke-width:2.5}
+.gl{stroke:var(--grn);stroke-dasharray:5 4;stroke-width:1.5}.gr{stroke:var(--bd)}.tl{fill:var(--sub);font-size:10px}.br{fill:var(--ac)}
+.out{color:var(--red)}.inc{color:var(--grn)}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:8px 18px;border-radius:999px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s;z-index:9;white-space:nowrap}
+#toast.on{opacity:1}
+:root{--bg:#fffaf2;--card:#fffefb;--tx:#6a5a5f;--sub:#a99a9f;--ac:#f6a1b8;--ac2:#fde6ec;--bd:#ecdcd5;--ln:#8c7b80;--mint:#d7f0e4;--sun:#fff0c2;--sky:#d3ebfa;--red:#ec6f87;--grn:#4cb890}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1a1d;--card:#2a2327;--tx:#f3e7ea;--sub:#b5a2a9;--bd:#3f3238;--ln:#d9c5cc;--ac2:#41303a}}
+:root[data-theme="dark"]{--bg:#1f1a1d;--card:#2a2327;--tx:#f3e7ea;--sub:#b5a2a9;--bd:#3f3238;--ln:#d9c5cc;--ac2:#41303a}
+body{font-family:"Hiragino Maru Gothic ProN","Yuanti SC","Nunito","PingFang SC","Microsoft YaHei",sans-serif;background:radial-gradient(var(--bd) 1.2px,transparent 1.2px) 0 0/24px 24px,var(--bg)}
+.card,.t,.tabs,.date input,.bar,.seg{border:2px solid var(--ln);box-shadow:none}
+.card{border-radius:20px}.seg{background:var(--card)}.bar{background:var(--card);height:14px}
+button{border-color:var(--ln);box-shadow:none}button:active{transform:scale(.95)}
+button.p{border-color:var(--ln);color:#5a3a44;box-shadow:none}
+.chips button.on,.seg button.on{border-color:var(--ln);box-shadow:none;color:var(--tx)}.seg button.on{background:var(--ac)}
+.banner{background:var(--sun);color:var(--tx);box-shadow:none;border:2px solid var(--ln);padding:10px 14px;border-radius:20px}
+.mas{font-size:0;line-height:0;animation:none}
+.tabs button{font-size:10.5px}.tabs button b{font-size:18px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.tt{display:flex;align-items:center;font-weight:700;font-size:17px;gap:6px}.tt #mm{display:flex;margin-right:2px}
+.wk,.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.wk button,.cal button{display:flex;flex-direction:column;align-items:center;padding:6px 0;border-radius:14px;line-height:1.25;min-width:0}
+.wk button.done{background:var(--mint)}.wk button.cur,.cal button.cur{outline:3px solid var(--ac);outline-offset:1px}.wk .th{font-size:15px;height:20px}
+.cal button{min-height:46px}.cal button span{display:block;height:8px;line-height:8px}.cal u{display:inline-block;width:6px;height:6px;border-radius:50%;margin:0 1px}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="top"><span class="tt"><span id="mm"></span>软糖健康日记</span><span id="sync" class="sub"></span></div>
+  <div class="date"><button onclick="setDate(add(date,-1))">‹</button><input type="date" id="dt" onchange="setDate(this.value)"><button onclick="setDate(add(date,1))">›</button></div>
+  <div id="main"></div>
+</div>
+<div class="tabs" id="tabs"></div>
+<div id="login" style="display:none;position:fixed;inset:0;z-index:20;background:var(--bg);align-items:center;justify-content:center;padding:20px">
+ <div class="card" style="width:100%;max-width:360px"><h3 style="font-size:18px">🍡 软糖健康日记</h3><div class="sub" style="margin-bottom:10px">登录后，记录会保存在云端，换手机也不会丢。</div>
+ <input id="le" type="email" placeholder="邮箱" style="margin-bottom:8px"><input id="lp" type="password" placeholder="密码（至少 6 位）" style="margin-bottom:10px">
+ <div class="row"><button class="p" onclick="doAuth('in')">登录</button><button onclick="doAuth('up')">注册</button></div>
+ <button class="x" style="width:100%" onclick="$('login').style.display='none'">先不登录，只存本机</button></div></div>
+<div id="toast"></div>
+<script>
+var db={w:{},e:[],m:{},b:[],wt:{},s:{},st:{}};
+try{var s0=localStorage.getItem('health_v1');if(s0)db=Object.assign(db,JSON.parse(s0))}catch(e){}
+var col=null,lastMeta='';var save=()=>{try{localStorage.setItem('health_v1',JSON.stringify(db))}catch(e){}cloudDay(date);cloudMeta()};
+var $=id=>document.getElementById(id),val=id=>$(id).value.trim();
+var fmt=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+var add=(k,n)=>{var d=new Date(k+'T00:00:00');d.setDate(d.getDate()+n);return fmt(d)};
+var esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+var today=fmt(new Date()),date=today,tab='h',range=7,exSel='跑步',bt='out',bcat='餐饮';
+var EX={'跑步':['🏃',10],'快走':['🚶',5],'骑行':['🚴',8],'游泳':['🏊',9],'跳绳':['🪢',12],'瑜伽':['🧘',4],'力量':['🏋️',6],'篮球':['🏀',8],'爬楼梯':['🪜',9],'其他':['✨',5]};
+var CO={'餐饮':'🍜','交通':'🚌','购物':'🛍️','娱乐':'🎮','居家':'🏠','医疗':'💊','其他':'✨'},CI={'工资':'💼','奖金':'🎁','理财':'📈','其他':'✨'};
+var lastN=n=>Array.from({length:n},(_,i)=>add(date,i-n+1));
+var wd=k=>'周'+'日一二三四五六'[new Date(k+'T00:00:00').getDay()];
+var burn=k=>db.e.reduce((a,x)=>a+(x.date==k?x.kcal:0),0);
+var intake=k=>{var m=db.m[k]||{};return['kb','kl','kd','ks'].reduce((a,f)=>a+(+m[f]||0),0)};
+var spend=k=>db.b.reduce((a,x)=>a+(x.date==k&&x.type=='out'?x.amt:0),0);
+var hasMeal=k=>{var m=db.m[k]||{};return !!(m.b||m.l||m.d||m.s)};
+var has=k=>(db.st[k]&&(db.st[k].mood||db.st[k].sleep||db.st[k].note))||db.w[k]!=null||burn(k)>0||hasMeal(k)||db.b.some(x=>x.date==k)||(db.wt[k]||0)>0;
+var streak=()=>{var k=has(today)?today:add(today,-1),n=0;while(has(k)){n++;k=add(k,-1)}return n};
+var toastT;function toast(m){var t=$('toast');t.textContent=m;t.className='on';clearTimeout(toastT);toastT=setTimeout(()=>t.className='',1800)}
+function setDate(v){if(v){date=v;render()}}
+var nid=()=>Date.now()+Math.floor(Math.random()*999);
+function tile(c,ic,l,v,u){return '<div class="t '+c+'"><span class="sub">'+ic+' '+l+'</span><b>'+v+'<small style="font-size:12px;font-weight:400"> '+u+'</small></b></div>'}
+function bars(vals,labels){var W=340,n=vals.length,mx=Math.max(1,...vals),bw=28,gap=(W-n*bw)/(n+1);
+  return '<svg viewBox="0 0 340 130">'+vals.map((v,i)=>{var x=gap+i*(bw+gap),h=v/mx*76;return '<rect class="br" x="'+x+'" y="'+(100-h)+'" width="'+bw+'" height="'+Math.max(h,2)+'" rx="9"/><text class="tl" text-anchor="middle" x="'+(x+bw/2)+'" y="'+(94-h)+'">'+(v?Math.round(v):'')+'</text><text class="tl" text-anchor="middle" x="'+(x+bw/2)+'" y="120">'+labels[i]+'</text>'}).join('')+'</svg>'}
+
+/* 今日 */
+function homeView(){
+  var w=db.w[date],m=db.m[date]||{},eb=burn(date),ei=intake(date),sp=spend(date),wc=db.wt[date]||0;
+  var tasks=[['⚖️','体重',w!=null,'w'],['🏃','运动',eb>0,'e'],['🍚','饮食',hasMeal(date),'m'],['💰','记账',db.b.some(x=>x.date==date),'b'],['💧','喝水',wc>=1,'m']];
+  var dn=tasks.filter(t=>t[2]).length,st=streak();
+  var msg=dn==5?'今天全部完成啦，超棒！🎉':dn==0?'今天也要元气满满哦～':'再完成 '+(5-dn)+' 项就全勤啦！';
+  var h='<div class="banner"><div class="mas" style="font-size:40px;line-height:1">🌸</div><div><b style="font-size:17px">'+msg+'</b><div style="font-size:13px">🔥 已连续打卡 '+st+' 天</div></div></div>';
+  h+='<div class="card"><h3>今日打卡 <span class="sub">'+dn+'/5</span></h3><div class="bar" style="margin-bottom:10px"><i style="width:'+dn*20+'%"></i></div><div class="chips" style="margin:0">'+tasks.map(t=>'<button class="'+(t[2]?'on':'')+'" onclick="tab=\''+t[3]+'\';render()">'+(t[2]?'✅':t[0])+' '+t[1]+'</button>').join('')+'</div></div>';
+  h+='<div class="tiles">'+tile('a','⚖️','体重',w!=null?w:'--','kg')+tile('b','🔥','运动消耗',eb,'千卡')+tile('c','🍚','饮食摄入',ei,'千卡')+tile('d','💰','今日支出',sp.toFixed(1),'元')+'</div>';
+  h+=statusCard();h+=badgeCard();if(ei||eb)h+='<div class="card"><h3>热量小结</h3>摄入 '+ei+' − 运动 '+eb+' = <b>'+(ei-eb)+'</b> 千卡<div class="sub">这是粗略估算，仅作参考，不含基础代谢</div></div>';
+  h+='<div class="card"><h3>💾 数据备份</h3><textarea id="bk" rows="2" placeholder="点导出会生成备份文本，复制保存；换设备时粘贴后点导入"></textarea><div class="row" style="margin:8px 0 0"><button onclick="expo()">导出</button><button class="p" onclick="impo()">导入</button></div></div>';
+  return h}
+function expo(){$('bk').value=JSON.stringify(db);$('bk').select();toast('已生成，请复制保存')}
+function impo(){try{var o=JSON.parse($('bk').value);if(!o||typeof o!='object')throw 0;db=Object.assign({w:{},e:[],m:{},b:[],wt:{},s:{},st:{}},o);save();allDays().forEach(cloudDay);render();toast('导入成功 🎉')}catch(e){toast('格式不对，导入失败')}}
+
+/* 体重 */
+function lastW(){var ks=Object.keys(db.w).filter(k=>k<=date).sort();return ks.length?db.w[ks[ks.length-1]]:null}
+function weightView(){
+  var cur=db.w[date],lw=lastW(),S=db.s,h=S.h>0,bmi=h&&lw?lw/Math.pow(S.h/100,2):0;
+  var bl=bmi<18.5?'偏瘦':bmi<24?'正常 👍':bmi<28?'偏胖':'肥胖';
+  var o='<div class="card"><h3>⚖️ 今日体重</h3><div class="row"><input id="wv" type="number" step="0.1" placeholder="输入体重 kg" value="'+(cur||'')+'"><button class="p" onclick="saveW()">保存</button></div>'+(cur!=null?'<button class="x" onclick="delW()">删除这天记录</button>':'')+'</div>';
+  o+='<div class="tiles">'+tile('a','📍','当前',lw||'--','kg')+tile('b','🎯','距目标',S.g>0&&lw?Math.abs(lw-S.g).toFixed(1):'--','kg')+tile('c','📏','BMI',bmi?bmi.toFixed(1):'--',bmi?bl:'')+tile('d','🏅','历史最低',Object.keys(db.w).length?Math.min(...Object.values(db.w)):'--','kg')+'</div>';
+  o+='<div class="card"><h3>📈 体重趋势</h3><div class="seg">'+[[7,'按周'],[30,'按月'],[90,'三个月']].map(r=>'<button class="'+(range==r[0]?'on':'')+'" onclick="range='+r[0]+';render()">'+r[1]+'</button>').join('')+'</div>'+chart()+'</div>';
+  o+='<div class="card"><h3>🎯 我的目标</h3><div class="row"><input id="sh" type="number" placeholder="身高 cm" value="'+(S.h||'')+'"><input id="sg" type="number" step="0.1" placeholder="目标体重 kg" value="'+(S.g||'')+'"><button onclick="saveS()">保存</button></div></div>';
+  return o}
+function saveS(){db.s.h=+val('sh')||0;db.s.g=+val('sg')||0;save();render();toast('已保存 ✨')}
+function saveW(){var v=parseFloat($('wv').value);if(!(v>0))return;var ks=Object.keys(db.w).filter(k=>k<date).sort(),p=ks.length?db.w[ks[ks.length-1]]:null;
+  db.w[date]=v;save();render();toast(p==null?'第一次记录，好的开始 🌸':v<p?'比上次轻了 '+(p-v).toFixed(1)+'kg 🎉':v>p?'比上次重了 '+(v-p).toFixed(1)+'kg，没关系～':'和上次一样稳 ✨')}
+function delW(){delete db.w[date];save();render()}
+function chart(){
+  var days=lastN(range),pts=[];days.forEach((k,i)=>{if(db.w[k]!=null)pts.push({i:i,k:k,v:db.w[k]})});
+  if(!pts.length)return '<div class="sub" style="text-align:center;padding:20px">还没有记录，快来称一下吧 🐾</div>';
+  var vs=pts.map(p=>p.v),g=db.s.g>0?db.s.g:null,all=g?vs.concat(g):vs,mn=Math.min(...all)-.5,mx=Math.max(...all)+.5;
+  var W=340,H=190,L=34,R=10,T=14,B=24,n=days.length,X=i=>L+i*(W-L-R)/(n-1),Y=v=>T+(mx-v)*(H-T-B)/(mx-mn),s='';
+  for(var j=0;j<=3;j++){var y=Y(mn+(mx-mn)*j/3);s+='<line class="gr" x1="'+L+'" x2="'+(W-R)+'" y1="'+y+'" y2="'+y+'"/><text class="tl" x="2" y="'+(y+3)+'">'+(mn+(mx-mn)*j/3).toFixed(1)+'</text>'}
+  var st=range==7?1:range==30?5:15;
+  days.forEach((k,i)=>{if(i%st==0||i==n-1)s+='<text class="tl" text-anchor="middle" x="'+X(i)+'" y="'+(H-6)+'">'+k.slice(5).replace('-','/')+'</text>'});
+  if(g)s+='<line class="gl" x1="'+L+'" x2="'+(W-R)+'" y1="'+Y(g)+'" y2="'+Y(g)+'"/><text class="tl" style="fill:var(--grn)" x="'+(W-R)+'" y="'+(Y(g)-4)+'" text-anchor="end">目标 '+g+'</text>';
+  s+='<path class="ln" d="'+pts.map((p,q)=>(q?'L':'M')+X(p.i)+' '+Y(p.v)).join(' ')+'"/>'+pts.map(p=>'<circle class="dt" cx="'+X(p.i)+'" cy="'+Y(p.v)+'" r="4"><title>'+p.k+'：'+p.v+'kg</title></circle>'+(range==7?'<text class="tl" text-anchor="middle" x="'+X(p.i)+'" y="'+(Y(p.v)-9)+'">'+p.v+'</text>':'')).join('');
+  var d=pts[pts.length-1].v-pts[0].v;
+  return '<svg viewBox="0 0 '+W+' '+H+'">'+s+'</svg><div class="sub">共 '+pts.length+' 次记录'+(pts.length>1?'，期间 '+(d>0?'+':'')+d.toFixed(1)+' kg':'')+'</div>'}
+
+/* 运动 */
+function exView(){
+  var list=db.e.filter(x=>x.date==date),tot=burn(date),agg={},tm=0,tk=0;
+  db.e.forEach(x=>{var a=agg[x.name]||(agg[x.name]={c:0,m:0,k:0});a.c++;a.m+=x.min;a.k+=x.kcal;tm+=x.min;tk+=x.kcal});
+  var ks=Object.keys(agg).sort((a,b)=>agg[b].c-agg[a].c),mc=ks.length?agg[ks[0]].c:1;
+  var h=weekStrip()+'<div class="card"><h3>🏃 添加运动</h3><div class="chips">'+Object.keys(EX).map(k=>'<button class="'+(k==exSel?'on':'')+'" onclick="selEx(this,\''+k+'\')">'+EX[k][0]+' '+k+'</button>').join('')+'</div><div class="row"><input id="em" type="number" placeholder="时长（分钟）" oninput="calc()"><input id="ek" type="number" placeholder="千卡（自动估算）"><button class="p" onclick="addE()">添加</button></div><div class="sub">按常见强度估算，仅供参考，可手动修改</div></div>';
+  h+='<div class="card"><h3>今日运动 <span class="sub">消耗 <b class="inc">'+tot+'</b> 千卡</span></h3>'+(list.length?list.map(x=>'<div class="item"><div>'+(EX[x.name]||EX['其他'])[0]+' '+esc(x.name)+'<div class="sub">'+x.min+' 分钟</div></div><div><b>'+x.kcal+'</b> 千卡<button class="x" onclick="delE('+x.id+')">✕</button></div></div>').join(''):'<div class="sub" style="text-align:center;padding:10px">今天还没动呢，动一动吧 💪</div>')+'</div>';
+  h+='<div class="card"><h3>📊 近 7 天消耗（千卡）</h3>'+bars(lastN(7).map(burn),lastN(7).map(wd))+'</div>';
+  h+='<div class="tiles">'+tile('a','🔢','累计次数',db.e.length,'次')+tile('b','⏱️','累计时长',tm,'分钟')+'</div>';
+  h+='<div class="card"><h3>🏆 每项运动累计</h3>'+(ks.length?ks.map(k=>{var a=agg[k];return '<div style="margin-bottom:10px"><div class="item" style="border:0;padding:0 0 4px"><span>'+(EX[k]||EX['其他'])[0]+' '+esc(k)+' <b>'+a.c+'</b> 次</span><span class="sub">'+a.m+' 分钟 · '+a.k+' 千卡</span></div><div class="bar"><i style="width:'+a.c/mc*100+'%"></i></div></div>'}).join(''):'<div class="sub">暂无数据</div>')+'</div>';
+  return h}
+function selEx(el,k){exSel=k;el.parentNode.querySelectorAll('button').forEach(b=>b.className='');el.className='on';calc()}
+function calc(){var m=parseFloat($('em').value);$('ek').value=m>0?Math.round(m*EX[exSel][1]):''}
+function addE(){var m=parseInt($('em').value),k=parseInt($('ek').value);if(!(m>0))return;if(!(k>=0))k=Math.round(m*EX[exSel][1]);db.e.push({id:nid(),date:date,name:exSel,min:m,kcal:k});save();render();toast('太棒了，消耗 '+k+' 千卡 🔥')}
+function delE(id){db.e=db.e.filter(x=>x.id!=id);save();render()}
+
+/* 饮食 */
+function mealView(){
+  var m=db.m[date]||{},wc=db.wt[date]||0,rows=[['b','🌅','早餐'],['l','☀️','午餐'],['d','🌙','晚餐'],['s','🍎','加餐']];
+  var h=rows.map(r=>'<div class="card"><h3>'+r[1]+' '+r[2]+'</h3><textarea id="m_'+r[0]+'" rows="2" placeholder="吃了什么？">'+esc(m[r[0]]||'')+'</textarea><input id="k_'+r[0]+'" type="number" style="margin-top:8px" placeholder="大约多少千卡（可选）" value="'+(m['k'+r[0]]||'')+'"></div>').join('');
+  h+='<button class="p" style="width:100%;margin-bottom:14px" onclick="saveM()">保存今日饮食 🍚（共 '+intake(date)+' 千卡）</button>';
+  h+='<div class="card"><h3>💧 喝水 <span class="sub">'+wc+'/8 杯</span></h3><div class="cups">'+Array.from({length:8},(_,i)=>'<button class="'+(i<wc?'on':'')+'" onclick="setW('+(i+1)+')">💧</button>').join('')+'</div></div>';
+  var ks=Object.keys(db.m).filter(k=>k!=date&&hasMeal(k)).sort().reverse().slice(0,7);
+  if(ks.length)h+='<div class="card"><h3>🗓️ 最近饮食</h3>'+ks.map(k=>{var o=db.m[k];return '<div class="item" style="display:block"><b>'+k.slice(5)+'</b> <span class="sub">'+intake(k)+' 千卡</span><div class="sub">早：'+esc(o.b||'-')+'｜午：'+esc(o.l||'-')+'｜晚：'+esc(o.d||'-')+(o.s?'｜加：'+esc(o.s):'')+'</div></div>'}).join('')+'</div>';
+  return h}
+function saveM(){var o={};['b','l','d','s'].forEach(f=>{o[f]=val('m_'+f);o['k'+f]=+val('k_'+f)||0});db.m[date]=o;save();render();toast('记好啦 🍚')}
+function setW(n){db.wt[date]=(db.wt[date]||0)==n?n-1:n;save();render();if(db.wt[date]==8)toast('今日喝水达标 🎉')}
+
+/* 记账 */
+function billView(){
+  var cats=bt=='out'?CO:CI,day=db.b.filter(x=>x.date==date),mo=date.slice(0,7),mo_o=0,mo_i=0,cm={};
+  db.b.forEach(x=>{if(x.date.slice(0,7)==mo){if(x.type=='out'){mo_o+=x.amt;cm[x.cat]=(cm[x.cat]||0)+x.amt}else mo_i+=x.amt}});
+  var bud=db.s.bud||0,pc=bud?mo_o/bud*100:0;
+  var h='<div class="card"><h3>🎀 本月预算 <span class="sub">'+(bud?'剩 '+(bud-mo_o).toFixed(0)+' 元':'未设置')+'</span></h3>'+(bud?'<div class="bar" style="margin-bottom:8px"><i style="width:'+Math.min(pc,100)+'%;background:'+(pc>100?'var(--red)':'var(--ac)')+'"></i></div>':'')+'<div class="row" style="margin:0"><input id="bud" type="number" placeholder="设置月预算（元）" value="'+(bud||'')+'"><button onclick="db.s.bud=+$(\'bud\').value||0;save();render()">保存</button></div></div>';
+  h+='<div class="tiles">'+tile('d','📤','本月支出',mo_o.toFixed(0),'元')+tile('b','📥','本月收入',mo_i.toFixed(0),'元')+'</div>';
+  h+='<div class="card"><div class="seg"><button class="'+(bt=='out'?'on':'')+'" onclick="bt=\'out\';bcat=\'餐饮\';render()">支出</button><button class="'+(bt=='in'?'on':'')+'" onclick="bt=\'in\';bcat=\'工资\';render()">收入</button></div><div class="chips">'+Object.keys(cats).map(c=>'<button class="'+(c==bcat?'on':'')+'" onclick="bcat=\''+c+'\';this.parentNode.querySelectorAll(\'button\').forEach(b=>b.className=\'\');this.className=\'on\'">'+cats[c]+' '+c+'</button>').join('')+'</div><div class="row"><input id="ba" type="number" step="0.01" placeholder="金额"><input id="bn" placeholder="备注（可选）"><button class="p" onclick="addB()">记一笔</button></div></div>';
+  h+='<div class="card"><h3>🧾 今日账单</h3>'+(day.length?day.map(x=>'<div class="item"><div>'+((x.type=='out'?CO:CI)[x.cat]||'✨')+' '+esc(x.cat)+'<div class="sub">'+esc(x.note||'')+'</div></div><div><b class="'+(x.type=='out'?'out':'inc')+'">'+(x.type=='out'?'-':'+')+x.amt.toFixed(2)+'</b><button class="x" onclick="delB('+x.id+')">✕</button></div></div>').join(''):'<div class="sub" style="text-align:center;padding:10px">今天还没记账 🪙</div>')+'</div>';
+  h+='<div class="card"><h3>📊 近 7 天支出（元）</h3>'+bars(lastN(7).map(spend),lastN(7).map(wd))+'</div>';
+  var ck=Object.keys(cm).sort((a,b)=>cm[b]-cm[a]);
+  if(ck.length)h+='<div class="card"><h3>🍰 本月支出分类</h3>'+ck.map(k=>{var p=cm[k]/mo_o*100;return '<div style="margin-bottom:8px"><div class="item" style="border:0;padding:0 0 3px"><span>'+(CO[k]||'✨')+' '+k+'</span><span class="sub">'+cm[k].toFixed(2)+'（'+p.toFixed(0)+'%）</span></div><div class="bar"><i style="width:'+p+'%"></i></div></div>'}).join('')+'</div>';
+  return h}
+function addB(){var a=parseFloat($('ba').value);if(!(a>0))return;db.b.push({id:nid(),date:date,type:bt,cat:bcat,amt:a,note:val('bn')});save();render();toast('记好啦 🪙')}
+function delB(id){db.b=db.b.filter(x=>x.id!=id);save();render()}
+
+function render(){
+  $('dt').value=date;
+  $('main').innerHTML={h:homeView,w:weightView,e:exView,m:mealView,b:billView,y:histView}[tab]();
+  $('tabs').innerHTML=[['h','🏠','今日'],['w','⚖️','体重'],['e','🏃','运动'],['m','🍚','饮食'],['b','💰','记账'],['y','📅','历史']].map(t=>'<button class="'+(tab==t[0]?'on':'')+'" onclick="tab=\''+t[0]+'\';render();scrollTo(0,0)"><b>'+t[1]+'</b>'+t[2]+'</button>').join('')}
+/* 今日状态 / 徽章 / 周目标 */
+var MOODS=['😆','😊','😐','😔','😫'];
+function statusCard(){var s=db.st[date]||{};
+  return '<div class="card"><h3>🌈 今日状态</h3><div class="chips">'+MOODS.map(m=>'<button class="'+(s.mood==m?'on':'')+'" style="font-size:22px;padding:4px 12px" onclick="setSt(this,\''+m+'\')">'+m+'</button>').join('')+'</div><div class="row"><input id="slp" type="number" step="0.5" placeholder="昨晚睡了几小时 😴" value="'+(s.sleep||'')+'"></div><textarea id="nt" rows="2" placeholder="今天想说点什么…（一句话日记）">'+esc(s.note||'')+'</textarea><button class="p" style="width:100%;margin-top:8px" onclick="saveSt()">保存今日状态</button></div>'}
+function setSt(el,v){var s=db.st[date]||(db.st[date]={});s.mood=s.mood==v?'':v;save();el.parentNode.querySelectorAll('button').forEach(b=>b.className='');if(s.mood)el.className='on'}
+function saveSt(){var s=db.st[date]||(db.st[date]={});s.sleep=+val('slp')||0;s.note=val('nt');save();render();toast('记好啦 🌈')}
+function wg(n){db.s.wg=Math.max(1,Math.min(7,(db.s.wg||3)+n));save();render()}
+function badgeCard(){var st=streak(),wc=Object.values(db.wt).filter(n=>n>=8).length,bd=new Set(db.b.map(x=>x.date)).size,lw=lastW();
+  var L=[['🔥','连续3天',st>=3],['🌟','连续7天',st>=7],['👑','连续30天',st>=30],['🏃','运动10次',db.e.length>=10],['💪','运动50次',db.e.length>=50],['💧','喝水达标',wc>=1],['🪙','记账7天',bd>=7],['🎯','达成目标',!!(db.s.g>0&&lw&&Math.abs(lw-db.s.g)<=0.3)]];
+  return '<div class="card"><h3>🏅 我的徽章 <span class="sub">'+L.filter(x=>x[2]).length+'/'+L.length+'</span></h3><div class="wk" style="grid-template-columns:repeat(4,1fr)">'+L.map(x=>'<div style="'+(x[2]?'':'filter:grayscale(1);opacity:.4')+'"><div style="font-size:28px">'+x[0]+'</div><div class="sub">'+x[1]+'</div></div>').join('')+'</div></div>'}
+/* 小团子 */
+var SP='<path d="M30 17q-3-9 7-10q1 9-7 10z" fill="#bfe8cf" stroke="var(--ln)" stroke-width="1.8"/>',EA='<path d="M13 25l-2-14 12 7zM47 25l2-14-12 7z" fill="#cfeaf9" stroke="var(--ln)" stroke-width="1.8" stroke-linejoin="round"/>',BW='<path d="M30 17l-9-7v12zM30 17l9-7v12z" fill="#f6a1b8" stroke="var(--ln)" stroke-width="1.6" stroke-linejoin="round"/>';
+function mas(c,ex,z){return '<svg style="width:'+z+'px;height:'+z+'px" viewBox="0 0 60 60">'+ex+'<ellipse cx="30" cy="36" rx="22" ry="18" fill="'+c+'" stroke="var(--ln)" stroke-width="2"/><circle cx="22" cy="35" r="2.3" fill="var(--ln)"/><circle cx="38" cy="35" r="2.3" fill="var(--ln)"/><ellipse cx="15" cy="41" rx="4" ry="2.6" fill="#ffb7c9" opacity=".85"/><ellipse cx="45" cy="41" rx="4" ry="2.6" fill="#ffb7c9" opacity=".85"/><path d="M27 40q3 3 6 0" fill="none" stroke="var(--ln)" stroke-width="1.8" stroke-linecap="round"/></svg>'}
+$('mm').textContent='🍡';
+
+/* 本周运动打卡 */
+function weekStrip(){
+  var dow=(new Date(date+'T00:00:00').getDay()+6)%7,st=add(date,-dow),dn=0;
+  var cells=Array.from({length:7},(_,i)=>add(st,i)).map((k,i)=>{var l=db.e.filter(x=>x.date==k),n=l.length;if(n)dn++;
+    var ic=[...new Set(l.map(x=>(EX[x.name]||EX['其他'])[0]))].slice(0,2).join('');
+    return '<button class="'+(n?'done ':'')+(k==date?'cur':'')+'" onclick="setDate(\''+k+'\')"><span class="sub">周'+'一二三四五六日'[i]+'</span><b>'+k.slice(8)+(k==today?'<i style="color:var(--ac)">•</i>':'')+'</b><span class="th">'+(ic||'·')+'</span><span class="sub">'+(n?burn(k):'')+'</span></button>'}).join('');
+  return '<div class="card"><h3>📆 本周运动打卡 <span class="sub">'+dn+'/'+(db.s.wg||3)+' 天'+(dn>=(db.s.wg||3)?' 🎉':'')+'</span><span style="float:right"><button class="x" onclick="setDate(add(date,-7))">‹ 上周</button><button class="x" onclick="setDate(add(date,7))">下周 ›</button></span></h3><div class="wk">'+cells+'</div><div class="sub" style="margin-top:8px">点某一天可以查看和补记 · 每周目标 <button class="x" onclick="wg(-1)">−</button><b>'+(db.s.wg||3)+'</b> 天<button class="x" onclick="wg(1)">＋</button></div></div>'}
+
+/* 历史 */
+var hm=today.slice(0,7);
+function mshift(n){hm=fmt(new Date(+hm.slice(0,4),+hm.slice(5)-1+n,1)).slice(0,7);render()}
+function go(k){date=k;tab='h';render();scrollTo(0,0)}
+function histView(){
+  var y=+hm.slice(0,4),mo=+hm.slice(5)-1,off=(new Date(y,mo,1).getDay()+6)%7,dim=new Date(y,mo+1,0).getDate(),days=[],ws=[],tb=0,ts=0;
+  var c='一二三四五六日'.split('').map(x=>'<span class="sub">'+x+'</span>').join('')+'<i></i>'.repeat(off);
+  for(var d=1;d<=dim;d++){var k=hm+'-'+String(d).padStart(2,'0');
+    var dots=(db.w[k]!=null?'<u style="background:#f6c35c"></u>':'')+(burn(k)?'<u style="background:#6fc7a0"></u>':'')+(hasMeal(k)?'<u style="background:#7bbbe8"></u>':'')+(db.b.some(x=>x.date==k)?'<u style="background:var(--ac)"></u>':'');
+    c+='<button class="'+(k==date?'cur':'')+'" onclick="go(\''+k+'\')">'+d+'<span>'+dots+'</span></button>';
+    if(has(k))days.push(k);if(db.w[k]!=null)ws.push(db.w[k]);tb+=burn(k);ts+=spend(k)}
+  var row=k=>{var p=[],s=db.st[k]||{};if(s.mood)p.push(s.mood);if(s.sleep)p.push('😴 '+s.sleep+'h');if(db.w[k]!=null)p.push('⚖️ '+db.w[k]+'kg');if(burn(k))p.push('🔥 '+burn(k));if(intake(k))p.push('🍚 '+intake(k));if(spend(k))p.push('💰 '+spend(k).toFixed(1));
+    return '<div class="item" style="cursor:pointer" onclick="go(\''+k+'\')"><div><b>'+k.slice(5)+'</b> '+wd(k)+'<div class="sub">'+(p.join(' · ')||'有记录')+'</div></div><span class="sub">›</span></div>'};
+  var h='<div class="card"><div class="row"><button onclick="mshift(-1)">‹</button><b style="text-align:center">'+y+' 年 '+(mo+1)+' 月</b><button onclick="mshift(1)">›</button></div><div class="cal">'+c+'</div><div class="sub" style="margin-top:8px">🟡体重 🟢运动 🔵饮食 🌸记账，点日期查看当天</div></div>';
+  h+='<div class="tiles">'+tile('a','📅','记录天数',days.length,'天')+tile('b','🔥','运动消耗',tb,'千卡')+tile('c','⚖️','体重变化',ws.length>1?(ws[ws.length-1]-ws[0]>0?'+':'')+(ws[ws.length-1]-ws[0]).toFixed(1):'--','kg')+tile('d','💰','本月支出',ts.toFixed(0),'元')+'</div>';
+  h+='<div class="card"><h3>🗒️ 这个月的每一天</h3>'+(days.length?days.slice().reverse().map(row).join(''):'<div class="sub" style="text-align:center;padding:12px">这个月还没有记录</div>')+'</div>';
+  h+='<div class="card"><h3>☁️ 数据保存</h3><div class="sub">'+(col?'你的每一天都已保存到云端，换手机或电脑登录同一个账号就能看到全部历史，只有你自己能看到。 <button class="x" onclick="logout()">退出登录</button>':(sb?'尚未登录，目前只存在本机。 <button class="x" onclick="showLogin()">去登录</button>':'尚未配置云端，目前只存在本机浏览器里。'))+'</div></div>';
+  return h}
+
+/* 云端同步（每天一份数据，仅本人可见） */
+function setSync(s){var e=$('sync');if(e)e.textContent={ok:'☁️ 已同步',err:'⚠️ 同步失败，已存本机',loc:'📱 仅存本机',ing:'☁️ 同步中…'}[s]||''}
+function allDays(){return[...new Set([...Object.keys(db.w),...Object.keys(db.m),...Object.keys(db.wt),...Object.keys(db.st),...db.e.map(x=>x.date),...db.b.map(x=>x.date)])]}
+function dayOf(k){return{w:db.w[k]!=null?db.w[k]:null,e:db.e.filter(x=>x.date==k).map(x=>({id:x.id,name:x.name,min:x.min,kcal:x.kcal})),m:db.m[k]||{},b:db.b.filter(x=>x.date==k).map(x=>({id:x.id,type:x.type,cat:x.cat,amt:x.amt,note:x.note||''})),wt:db.wt[k]||0,st:db.st[k]||{}}}
+function applyDay(k,d){delete db.w[k];delete db.m[k];delete db.wt[k];delete db.st[k];db.e=db.e.filter(x=>x.date!=k);db.b=db.b.filter(x=>x.date!=k);
+  if(d.w!=null)db.w[k]=d.w;if(d.m&&Object.keys(d.m).length)db.m[k]=d.m;if(d.wt)db.wt[k]=d.wt;if(d.st&&Object.keys(d.st).length)db.st[k]=d.st;
+  (d.e||[]).forEach(x=>db.e.push(Object.assign({date:k},x)));(d.b||[]).forEach(x=>db.b.push(Object.assign({date:k},x)))}
+var SB_URL='https://kxhfoesmrapqcpkcschn.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4aGZvZXNtcmFwcWNwa2NzY2huIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMxNzQ0NjAsImV4cCI6MjEwODc1MDQ2MH0.Y0riwggcJHnun5XxaTWSxSHmHJju7hFmQBltWimVet4',sb=null,uid=null;
+function cloudDay(k){if(!col)return;var d=dayOf(k),empty=d.w==null&&!d.e.length&&!hasMeal(k)&&!d.b.length&&!d.wt&&!(d.st&&(d.st.mood||d.st.sleep||d.st.note));
+  setSync('ing');var q=empty?sb.from('days').delete().eq('user_id',uid).eq('day',k):sb.from('days').upsert({user_id:uid,day:k,data:d});
+  q.then(r=>setSync(r.error?'err':'ok'),()=>setSync('err'))}
+function cloudMeta(){if(!col)return;var s=JSON.stringify(db.s);if(s=='{}'||s==lastMeta)return;lastMeta=s;sb.from('meta').upsert({user_id:uid,data:db.s}).then(r=>{if(r.error)setSync('err')})}
+function showLogin(){$('login').style.display='flex'}
+async function doAuth(m){var e=val('le'),p=$('lp').value;if(!e||p.length<6){toast('请填写邮箱和至少 6 位密码');return}
+  try{var r=m=='up'?await sb.auth.signUp({email:e,password:p}):await sb.auth.signInWithPassword({email:e,password:p});
+    if(r.error){toast(r.error.message.slice(0,40));return}
+    if(r.data.session){$('login').style.display='none';await startSync(r.data.session.user.id)}else toast('请先去邮箱点确认链接，再回来登录')}catch(x){toast('网络出错了，再试一次')}}
+async function logout(){await sb.auth.signOut();try{localStorage.removeItem('health_v1')}catch(e){}location.reload()}
+async function startSync(id){try{uid=id;setSync('ing');var rows=[],i=0,r;
+  do{r=await sb.from('days').select('day,data').order('day').range(i,i+999);if(r.error)throw r.error;rows=rows.concat(r.data);i+=1000}while(r.data.length==1000);
+  var seen={};rows.forEach(x=>{seen[x.day]=1;applyDay(x.day,x.data||{})});
+  var m=await sb.from('meta').select('data').maybeSingle();if(m.data&&m.data.data){db.s=Object.assign(db.s,m.data.data);lastMeta=JSON.stringify(db.s)}
+  col=true;try{localStorage.setItem('health_v1',JSON.stringify(db))}catch(e){}
+  allDays().forEach(k=>{if(!seen[k])cloudDay(k)});cloudMeta();setSync('ok');render()}catch(e){col=null;setSync('err')}}
+(async function(){setSync('loc');if(!/^https:/.test(SB_URL)||!window.supabase)return;
+  sb=supabase.createClient(SB_URL,SB_KEY);var s=(await sb.auth.getSession()).data.session;if(s)await startSync(s.user.id);else showLogin()})();
+render();
+</script>
+</body>
+</html>
